@@ -1,0 +1,24 @@
+# Build / package artifacts
+node_modules/
+dist/
+build/
+*.zip
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Env / secrets (defensivo)
+.env
+.env.local
+.env.*.local
+
+# Logs em runtime (mantém a pasta via .gitkeep)
+logs/*
+!logs/.gitkeep
+*.log
+
+# Editor folders
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,39 @@
+.ytvv-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 40;
+  padding: 3px 7px;
+  border-radius: 12px;
+  font-family: 'YouTube Sans', Roboto, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.ytvv-badge--low {
+  background: linear-gradient(135deg, #f0b400, #f08c00);
+}
+
+.ytvv-badge--mid {
+  background: linear-gradient(135deg, #f05a00, #d62800);
+}
+
+.ytvv-badge--high {
+  background: linear-gradient(135deg, #d62800, #8a0000);
+}
+
+/* Containers de referência para o badge.
+   .ytLockupViewModelContentImage cobre tanto home (lockup dentro de
+   ytd-rich-item-renderer) quanto o sidebar do watch (lockup como raiz). */
+a.ytLockupViewModelContentImage,
+ytd-thumbnail #thumbnail,
+ytd-rich-item-renderer a[href*="/watch"],
+ytd-video-renderer a[href*="/watch"] {
+  position: relative;
+}
