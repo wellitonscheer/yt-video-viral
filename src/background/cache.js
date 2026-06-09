@@ -2,6 +2,11 @@
 // Schema: { [channelKey]: { subs: number|null, fetchedAt: epoch_ms } }
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+// TTL curto para respostas null (canal sem contagem OU falha de parse). Mantê-las só 24h
+// causaria "blackout" de badges quando o YouTube muda o formato do HTML (ou, antes do fix de
+// i18n, em páginas em inglês): a extração falha, grava null e some o badge por 24h. Com 1h, isso
+// auto-cura rápido. Também migra usuários que já têm null em cache de páginas inglesas pré-fix.
+const NULL_TTL_MS = 60 * 60 * 1000;
 const STORAGE_KEY = 'ytvv_channel_cache';
 
 const inFlight = new Map(); // channelKey -> Promise<subs|null>
@@ -23,7 +28,8 @@ export async function getCached(channelKey) {
   const all = await readAll();
   const entry = all[channelKey];
   if (!entry) return undefined;
-  if (Date.now() - entry.fetchedAt > CACHE_TTL_MS) return undefined;
+  const ttl = entry.subs === null ? NULL_TTL_MS : CACHE_TTL_MS;
+  if (Date.now() - entry.fetchedAt > ttl) return undefined;
   return entry.subs; // number ou null
 }
 

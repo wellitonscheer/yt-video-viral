@@ -30,12 +30,25 @@ function videoIdFromHref(videoHref) {
   }
 }
 
+// fetch com timeout via AbortController. Em timeout, lança AbortError — os callers (getChannelHref/
+// getSubs) capturam e devolvem null SEM cachear, evitando pendurar o handler e evitando cache 24h de
+// uma falha transitória.
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    return await fetch(url, Object.assign({}, options, { signal: ctrl.signal }));
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // Sidebar do watch não expõe anchor de canal. oEmbed devolve author_url
 // (https://www.youtube.com/@handle), que então passamos pro fetchSubscribers.
 async function resolveChannelHrefViaOembed(videoHref) {
   const watchUrl = new URL(videoHref, 'https://www.youtube.com').toString();
   const url = 'https://www.youtube.com/oembed?url=' + encodeURIComponent(watchUrl) + '&format=json';
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url, {}, 6000);
   if (!res.ok) return null;
   const j = await res.json();
   return j.author_url || null;

@@ -22,3 +22,7 @@ logs/*
 .idea/
 .vscode/
 *.swp
+
+# Test artifacts gerados pelo Playwright MCP (regenerados a cada run; ver tests/playwright/RUNBOOK.md)
+.playwright-mcp/
+ytvv-e2e-badge.png
