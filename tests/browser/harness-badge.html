@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>YTVV — badge harness</title>
+  <link rel="stylesheet" href="../../src/content/badge.css">
+</head>
+<body>
+  <script src="assert-browser.js"></script>
+  <script src="../../src/shared/constants.js"></script>
+  <script src="../../src/shared/selectors.js"></script>
+  <script src="../../src/content/parsers.js"></script>
+  <script src="../../src/content/badge.js"></script>
+  <script src="../../src/content/scanner.js"></script>
+  <script>
+    (function () {
+      var T = window.YTVVTest;
+
+      // intensityClass — limiares: >=5 high, >=2 mid, else low
+      T.eq(YTVV.intensityClass(1.0), 'ytvv-badge--low', 'intensity 1.0 -> low');
+      T.eq(YTVV.intensityClass(1.99), 'ytvv-badge--low', 'intensity 1.99 -> low');
+      T.eq(YTVV.intensityClass(2.0), 'ytvv-badge--mid', 'intensity 2.0 -> mid');
+      T.eq(YTVV.intensityClass(4.99), 'ytvv-badge--mid', 'intensity 4.99 -> mid');
+      T.eq(YTVV.intensityClass(5.0), 'ytvv-badge--high', 'intensity 5.0 -> high');
+      T.eq(YTVV.intensityClass(12), 'ytvv-badge--high', 'intensity 12 -> high');
+
+      // formatRatio — pt-BR vírgula decimal; >=10 arredonda inteiro
+      T.eq(YTVV.formatRatio(1.5), '1,5x', 'format 1.5 -> 1,5x');
+      T.eq(YTVV.formatRatio(3.0), '3,0x', 'format 3.0 -> 3,0x');
+      T.eq(YTVV.formatRatio(10), '10x', 'format 10 -> 10x');
+      T.eq(YTVV.formatRatio(12.4), '12x', 'format 12.4 -> 12x');
+
+      // applyBadge — ciclo de vida num container
+      var c = document.createElement('div');
+      document.body.appendChild(c);
+
+      YTVV.applyBadge(c, 3.0);
+      var b = c.querySelector('.ytvv-badge');
+      T.ok(!!b, 'ratio 3.0 cria badge');
+      if (b) {
+        T.contains(b.textContent, '🔥', 'badge tem 🔥');
+        T.contains(b.textContent, '3,0x', 'badge mostra 3,0x');
+        T.ok(b.className.indexOf('ytvv-badge--mid') !== -1, 'badge é --mid');
+      }
+      // container ganha position relativa (defensivo)
+      T.eq(getComputedStyle(c).position, 'relative', 'container vira position:relative');
+
+      // re-aplicar atualiza o MESMO nó (sem duplicar)
+      YTVV.applyBadge(c, 6.0);
+      T.eq(c.querySelectorAll('.ytvv-badge').length, 1, 'reaplicar não duplica badge');
+      var b2 = c.querySelector('.ytvv-badge');
+      if (b2) {
+        T.ok(b2.className.indexOf('ytvv-badge--high') !== -1, 'agora --high');
+        T.contains(b2.textContent, '6,0x', 'mostra 6,0x');
+      }
+
+      // ratio < threshold remove o badge
+      YTVV.applyBadge(c, 0.5);
+      T.ok(!c.querySelector('.ytvv-badge'), 'ratio<1 remove badge');
+
+      T.finalize();
+    })();
+  </script>
+</body>
+</html>

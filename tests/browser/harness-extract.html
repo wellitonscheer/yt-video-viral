@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>YTVV — extractCard harness</title>
+</head>
+<body>
+  <!-- Cards sintéticos espelhando a estrutura real do YouTube. extractCard chaveia por CONTEÚDO
+       (prefixo de href + regex de texto), não por classe, então só precisamos das tags-raiz corretas,
+       um a[href*="/watch"], um a[href^="/@" | "/channel/"] (fora do anchor de vídeo) e um leaf de views. -->
+
+  <!-- home (ytd-rich-item-renderer), pt-BR -->
+  <ytd-rich-item-renderer id="home-ptbr">
+    <div><div><a href="/watch?v=AAA"><img alt="thumb"></a></div></div>
+    <div><a href="/@canalbr">Canal BR</a></div>
+    <div id="meta"><span>1,2 mi de visualizações</span><span> • há 2 dias</span></div>
+  </ytd-rich-item-renderer>
+
+  <!-- sidebar (yt-lockup-view-model solo), inglês -->
+  <yt-lockup-view-model id="sidebar-en">
+    <a class="ytLockupViewModelContentImage" href="/watch?v=BBB"><img alt="thumb"></a>
+    <div><a href="/@chan2">Chan Two</a></div>
+    <div><span>1.2M views</span></div>
+  </yt-lockup-view-model>
+
+  <!-- search (ytd-video-renderer), inglês, canal via /channel/UC... -->
+  <ytd-video-renderer id="search-en">
+    <div><a href="/watch?v=CCC"><img alt="thumb"></a></div>
+    <div><a href="/channel/UCxyz">Foo Channel</a></div>
+    <div><span>250K views</span></div>
+  </ytd-video-renderer>
+
+  <!-- aninhado: yt-lockup dentro de ytd-rich-item-renderer — matchContext do lockup deve dar null
+       (o wrapper externo é quem processa, evitando badge duplicado). -->
+  <ytd-rich-item-renderer id="nested-outer">
+    <yt-lockup-view-model id="nested-inner">
+      <a href="/watch?v=DDD"><img alt="thumb"></a>
+      <div><a href="/@nest">Nest</a></div>
+      <div><span>523 mil de visualizações</span></div>
+    </yt-lockup-view-model>
+  </ytd-rich-item-renderer>
+
+  <!-- card sem anchor de /watch (deve dar null) -->
+  <ytd-video-renderer id="no-video">
+    <div><a href="/@semvideo">Sem Vídeo</a></div>
+    <div><span>100K views</span></div>
+  </ytd-video-renderer>
+
+  <!-- COMPACTO (YouTube atual): contagem SEM a palavra "visualizações" -> fallback aditivo deve achar "70 mi" -->
+  <ytd-video-renderer id="compact-noword">
+    <div><a href="/watch?v=EEE"><img alt="thumb"></a></div>
+    <div><a href="/@compact">Compact</a></div>
+    <div id="metadata-line"><span class="inline-metadata-item">70 mi</span><span class="inline-metadata-item">há 10 dias</span></div>
+  </ytd-video-renderer>
+
+  <!-- GUARDA: inteiro solto "8" ao lado de data, sem palavra/sufixo/separador -> fallback deve REJEITAR (null) -->
+  <ytd-video-renderer id="lone-int-noword">
+    <div><a href="/watch?v=FFF"><img alt="thumb"></a></div>
+    <div><a href="/@lone">Lone</a></div>
+    <div id="metadata-line"><span class="inline-metadata-item">8</span><span class="inline-metadata-item">há 2 dias</span></div>
+  </ytd-video-renderer>
+
+  <script src="assert-browser.js"></script>
+  <script src="../../src/shared/constants.js"></script>
+  <script src="../../src/shared/selectors.js"></script>
+  <script src="../../src/content/parsers.js"></script>
+  <script src="../../src/content/badge.js"></script>
+  <script src="../../src/content/scanner.js"></script>
+  <script>
+    (function () {
+      var T = window.YTVVTest;
+
+      // home pt-BR
+      var home = YTVV.extractCard(document.getElementById('home-ptbr'));
+      T.ok(!!home, 'home pt-BR: extractCard != null');
+      if (home) {
+        T.eq(home.context, 'home', 'home: context=home');
+        T.contains(home.viewsText, 'visualizações', 'home: viewsText em pt');
+        T.eq(YTVV.parseCount(home.viewsText), 1200000, 'home: parseCount=1.2M');
+        T.contains(home.channelHref, '@canalbr', 'home: channelHref @canalbr');
+        T.contains(home.videoHref, 'watch?v=AAA', 'home: videoHref AAA');
+      }
+
+      // sidebar en
+      var side = YTVV.extractCard(document.getElementById('sidebar-en'));
+      T.ok(!!side, 'sidebar en: extractCard != null');
+      if (side) {
+        T.eq(side.context, 'sidebar', 'sidebar: context=sidebar');
+        T.contains(side.viewsText, 'views', 'sidebar: viewsText em en');
+        T.eq(YTVV.parseCount(side.viewsText), 1200000, 'sidebar: parseCount=1.2M');
+        T.contains(side.channelHref, '@chan2', 'sidebar: channelHref @chan2');
+      }
+
+      // search en (canal via /channel/UC...)
+      var search = YTVV.extractCard(document.getElementById('search-en'));
+      T.ok(!!search, 'search en: extractCard != null');
+      if (search) {
+        T.eq(search.context, 'search', 'search: context=search');
+        T.eq(YTVV.parseCount(search.viewsText), 250000, 'search: parseCount=250K');
+        T.contains(search.channelHref, 'channel/UCxyz', 'search: channelHref channel/UCxyz');
+      }
+
+      // aninhado: o lockup interno deve dar null (matchContext); o externo deve extrair
+      T.eq(YTVV.matchContext(document.getElementById('nested-inner')), null, 'nested: lockup interno -> matchContext null');
+      var outer = YTVV.extractCard(document.getElementById('nested-outer'));
+      T.ok(!!outer, 'nested: rich-item externo extrai (1 badge só)');
+      if (outer) T.eq(YTVV.parseCount(outer.viewsText), 523000, 'nested externo: parseCount=523k');
+
+      // sem /watch -> null
+      T.eq(YTVV.extractCard(document.getElementById('no-video')), null, 'sem anchor /watch -> null');
+
+      // compacto sem palavra "visualizações" -> fallback acha "70 mi"
+      var compact = YTVV.extractCard(document.getElementById('compact-noword'));
+      T.ok(!!compact, 'compacto sem palavra: extractCard != null (fallback)');
+      if (compact) {
+        T.contains(compact.viewsText, '70 mi', 'compacto: viewsText = "70 mi"');
+        T.eq(YTVV.parseCount(compact.viewsText), 70000000, 'compacto: parseCount=70M');
+      }
+
+      // guarda: inteiro solto "8" ao lado de data -> rejeitado (null), sem badge falso
+      T.eq(YTVV.extractCard(document.getElementById('lone-int-noword')), null, 'inteiro solto "8" -> null (guarda anti falso-positivo)');
+
+      T.finalize();
+    })();
+  </script>
+</body>
+</html>

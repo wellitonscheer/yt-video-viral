@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>YTVV — e2e harness (content.js + chrome stub)</title>
+  <link rel="stylesheet" href="../../src/content/badge.css">
+</head>
+<body>
+  <!-- Cards reais o suficiente p/ content.js: o MutationObserver/scan inicial encontra a tag-raiz,
+       extractCard puxa channelHref+views, sendMessage (stub) devolve subs canned, applyBadge dispara. -->
+
+  <!-- VIRAL: 1,2 mi views / 100k subs = ratio 12 -> badge --high "🔥 12x" -->
+  <div id="card-viral">
+    <ytd-rich-item-renderer>
+      <div><a href="/watch?v=VIRAL1"><img alt="thumb"></a></div>
+      <div><a href="/@viral">Canal Viral</a></div>
+      <div><span>1,2 mi de visualizações</span></div>
+    </ytd-rich-item-renderer>
+  </div>
+
+  <!-- LOW: 100k views / 5M subs = ratio 0.02 -> SEM badge -->
+  <div id="card-low">
+    <ytd-video-renderer>
+      <div><a href="/watch?v=LOW1"><img alt="thumb"></a></div>
+      <div><a href="/channel/UCbig">Canal Grande</a></div>
+      <div><span>100K views</span></div>
+    </ytd-video-renderer>
+  </div>
+
+  <script src="chrome-stub.js"></script>
+  <script src="assert-browser.js"></script>
+  <script>
+    // Configura o stub ANTES de content.js rodar (content.js dispara o scan ao carregar).
+    window.__YTVV_STUB_SUBS = { '@viral': 100000, 'UCbig': 5000000 };
+  </script>
+
+  <!-- content scripts na ordem do manifest -->
+  <script src="../../src/shared/constants.js"></script>
+  <script src="../../src/shared/selectors.js"></script>
+  <script src="../../src/content/parsers.js"></script>
+  <script src="../../src/content/badge.js"></script>
+  <script src="../../src/content/scanner.js"></script>
+  <script src="../../src/content/content.js"></script>
+
+  <script>
+    (function () {
+      var T = window.YTVVTest;
+      // content.js responde via microtask + requestAnimationFrame; faz poll até ~3s pelo badge.
+      var tries = 0;
+      (function wait() {
+        tries++;
+        var viralBadge = document.querySelector('#card-viral .ytvv-badge');
+        if (viralBadge || tries > 60) {
+          T.ok(!!viralBadge, 'card viral (ratio 12) recebe badge');
+          if (viralBadge) {
+            T.contains(viralBadge.textContent, '🔥', 'badge tem 🔥');
+            T.contains(viralBadge.textContent, '12x', 'badge mostra 12x');
+            T.ok(viralBadge.className.indexOf('ytvv-badge--high') !== -1, 'badge é --high');
+          }
+          T.ok(!document.querySelector('#card-low .ytvv-badge'), 'card low (ratio 0.02) NÃO recebe badge');
+          T.finalize();
+          return;
+        }
+        setTimeout(wait, 50);
+      })();
+    })();
+  </script>
+</body>
+</html>

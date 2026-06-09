@@ -10,11 +10,12 @@ YTVV.parseCount = function (text) {
   if (!text || typeof text !== 'string') return null;
 
   // Captura o primeiro número (com possível , ou . decimal) seguido opcionalmente de um sufixo.
-  // pt-BR: "1,2 mi", "523 mil", "1,2 bi"
-  // en:    "1.2M", "523K", "1.2B"
-  // Alternativas mais longas primeiro: milhões/milhão antes de mil, mil antes de mi
-  // Aceita múltiplos separadores de milhar (ex.: "1.234.567") via `*` no grupo
-  var match = text.match(/([\d]+(?:[.,]\d+)*)\s*(milhões|milhão|mil|mi|bi|M|K|B|m|k|b)?/i);
+  // pt-BR: "1,2 mi", "523 mil", "1,2 bi", "2,42 milhões"
+  // en:    "1.2M", "523K", "1.2B", "29.8 million"
+  // Alternativas mais longas primeiro — million/billion ANTES de mil/mi/bi, senão "mil" casaria
+  // como prefixo de "million" e devolveria 1e3 em vez de 1e6.
+  // Aceita múltiplos separadores de milhar (ex.: "1.234.567" / "1,234,567") via `*` no grupo
+  var match = text.match(/([\d]+(?:[.,]\d+)*)\s*(milhões|milhão|thousand|million|billion|trillion|mil|mi|bi|M|K|B|m|k|b)?/i);
   if (!match) return null;
 
   var rawNum = match[1];
@@ -35,9 +36,10 @@ YTVV.parseCount = function (text) {
   if (isNaN(num)) return null;
 
   var multiplier = 1;
-  if (suffix === 'k' || suffix === 'mil') multiplier = 1e3;
-  else if (suffix === 'm' || suffix === 'mi' || suffix === 'milhões' || suffix === 'milhão') multiplier = 1e6;
-  else if (suffix === 'b' || suffix === 'bi') multiplier = 1e9;
+  if (suffix === 'k' || suffix === 'mil' || suffix === 'thousand') multiplier = 1e3;
+  else if (suffix === 'm' || suffix === 'mi' || suffix === 'milhões' || suffix === 'milhão' || suffix === 'million') multiplier = 1e6;
+  else if (suffix === 'b' || suffix === 'bi' || suffix === 'billion') multiplier = 1e9;
+  else if (suffix === 'trillion') multiplier = 1e12;
 
   return Math.round(num * multiplier);
 };

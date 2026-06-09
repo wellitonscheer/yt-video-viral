@@ -33,6 +33,13 @@ YTVV.applyBadge = function (thumbnailContainer, ratio) {
     return;
   }
 
+  // O badge é position:absolute; precisa de um ancestral posicionado. badge.css aplica
+  // position:relative às âncoras conhecidas, mas se o YouTube vencer por especificidade ou se a
+  // âncora escolhida não casar os seletores, garantimos aqui (idempotente) que o container ancora o badge.
+  if (getComputedStyle(thumbnailContainer).position === 'static') {
+    thumbnailContainer.style.position = 'relative';
+  }
+
   var badge = document.createElement('div');
   badge.className = cls;
   badge.textContent = text;

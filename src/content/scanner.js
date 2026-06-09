@@ -36,7 +36,15 @@ YTVV.matchContext = function (cardEl) {
 //   }
 // };
 
-YTVV._VIEWS_PATTERN = /\b\d[\d.,]*\s*(?:mil|mi|bi|milhões|milhão|K|M|B)?\s*(?:de\s+)?(?:views|visualizações)\b/i;
+// Aceita plural e singular em ambos idiomas: "1.2M views" / "1 view" / "523 mil visualizações" / "1 visualização".
+YTVV._VIEWS_PATTERN = /\b\d[\d.,]*\s*(?:thousand|million|billion|trillion|mil|mi|bi|milhões|milhão|K|M|B)?\s*(?:de\s+)?(?:views?|visualizaç(?:ões|ão))\b/i;
+
+// Layout compacto do YouTube atual omite a palavra "views/visualizações" e mostra só a contagem
+// ("70 mi • há 10 dias"). Para o fallback (vide extractCard), reconhecemos uma contagem PURA (texto
+// inteiro = número+sufixo, com sufixo ou separador, p/ rejeitar inteiros soltos) e uma DATA relativa
+// (pt/en) que confirma que a contagem está numa linha de metadados de vídeo, não um número avulso.
+YTVV._BARE_COUNT_PATTERN = /^(\d[\d.,]*)\s*(thousand|million|billion|trillion|mil|mi|bi|milhões|milhão|K|M|B)?$/i;
+YTVV._DATE_HINT_PATTERN = /(^|\s)há\s|\bago\b|atrás|transmitido|streamed|\b\d+\s*(?:dias?|semanas?|sem\.|meses|m[êe]s|anos?|horas?|minutos?|days?|weeks?|months?|years?|hours?|minutes?)\b/i;
 
 YTVV.extractCard = function (cardEl) {
   var contextName = YTVV.matchContext(cardEl);
@@ -72,6 +80,34 @@ YTVV.extractCard = function (cardEl) {
     if (YTVV._VIEWS_PATTERN.test(t)) {
       viewsText = t;
       break;
+    }
+  }
+  // Fallback (aditivo — só roda se o caminho ancorado na palavra falhou): YouTube atual às vezes
+  // mostra a contagem SEM "views/visualizações" (ex.: "70 mi • há 10 dias"). Procuramos uma folha cujo
+  // texto INTEIRO seja uma contagem pura (com sufixo OU separador) e que esteja ao lado de uma data
+  // relativa (ancestral curto com marcador de data), confirmando que é a linha de metadados do vídeo.
+  if (!viewsText) {
+    var w2 = document.createTreeWalker(cardEl, NodeFilter.SHOW_ELEMENT, null);
+    var leaf;
+    while ((leaf = w2.nextNode())) {
+      if (leaf.children.length > 0) continue; // só folhas reais
+      var lt = (leaf.textContent || '').trim();
+      if (!lt || lt.length > 24) continue;
+      var bm = lt.match(YTVV._BARE_COUNT_PATTERN);
+      if (!bm) continue;
+      var hasSuffix = !!bm[2];
+      var hasSep = /[.,]/.test(bm[1]);
+      if (!hasSuffix && !hasSep) continue; // rejeita inteiros soltos curtos (ex.: "10" de uma data)
+      // confirma contexto de metadados: algum ancestral curto contém marcador de data relativa
+      var anc = leaf.parentElement;
+      var hops = 0;
+      while (anc && hops < 4) {
+        var at = (anc.textContent || '').trim();
+        if (at.length <= 60 && YTVV._DATE_HINT_PATTERN.test(at)) { viewsText = lt; break; }
+        anc = anc.parentElement;
+        hops++;
+      }
+      if (viewsText) break;
     }
   }
   if (!viewsText) {
