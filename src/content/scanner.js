@@ -9,11 +9,11 @@ var YTVV = (typeof YTVV !== 'undefined') ? YTVV : {};
 
 YTVV.matchContext = function (cardEl) {
   var tag = cardEl.tagName.toLowerCase();
-  // yt-lockup-view-model é tanto raiz (sidebar) quanto aninhado em
-  // ytd-rich-item-renderer (home) / ytd-video-renderer (busca). Quando
+  // yt-lockup-view-model é tanto raiz (sidebar, playlists, canal) quanto aninhado em
+  // ytd-rich-item-renderer (home) / ytd-video-renderer (busca) / outros wrappers. Quando
   // aninhado, ignoramos: o wrapper já vai disparar processCard.
   if (tag === 'yt-lockup-view-model') {
-    if (cardEl.closest('ytd-rich-item-renderer, ytd-video-renderer')) return null;
+    if (cardEl.parentElement && cardEl.parentElement.closest(YTVV.WRAPPER_SELECTORS_JOINED)) return null;
     return 'sidebar';
   }
   for (var name in YTVV.SELECTORS) {

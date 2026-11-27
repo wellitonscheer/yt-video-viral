@@ -6,7 +6,7 @@
 
 ## O que faz
 
-Enquanto você navega no YouTube (home, busca, sidebar de vídeos), um badge 🔥 aparece em cima das thumbs cujo `views / inscritos ≥ 1×`. A cor indica a magnitude:
+Enquanto você navega no YouTube (home, busca, vídeos relacionados, canais, playlists), um badge 🔥 aparece em cima das thumbs cujo `views / inscritos ≥ 1×`. A cor indica a magnitude:
 
 - 🟡 **Amarelo** — `1× a 2×` (vídeo um pouco acima da base)
 - 🟠 **Laranja** — `2× a 5×` (claramente viralizou)
@@ -44,8 +44,13 @@ A extensão observa o DOM do YouTube via `MutationObserver`, extrai de cada card
 
 - ✅ Página inicial do YouTube (`/`)
 - ✅ Resultados de busca (`/results`)
-- ✅ Sidebar de vídeos recomendados na página de watch (`/watch`)
-- ❌ Shorts, playlists puras, páginas de canal (sem badges nesses contextos)
+- ✅ Vídeos relacionados na página de watch (`/watch`), inclusive abaixo de uma playlist/mix
+- ✅ Páginas de canal (abas Início, Vídeos e Ao vivo, e busca no canal)
+- ✅ Playlists (`/playlist`), inclusive "Assistir mais tarde" e "Vídeos curtidos"
+- ✅ Inscrições, Histórico, "Você" e Gaming
+- ❌ Shorts
+- ❌ Lista lateral da playlist/mix no `/watch` (o YouTube não mostra as views dos itens ali) e o vídeo em reprodução
+- ❌ Lives e estreias (sem contagem de visualizações) e cards de Mix/playlist
 
 ## Privacidade
 
@@ -62,6 +67,7 @@ Política completa: [`docs/PRIVACY.md`](docs/PRIVACY.md).
 - Canais que ocultam contagem de inscritos retornam sem dado — sem badge.
 - A primeira visita a um canal novo precisa de um `fetch` da página dele (alguns segundos); visitas subsequentes usam cache.
 - Não funciona em YouTube Shorts.
+- Depois de atualizar a extensão, dê **F5** nas abas do YouTube que já estavam abertas: até recarregar, elas ficam sem badges.
 
 ## Contribuir
 

@@ -32,7 +32,7 @@ await s.send('Network.clearBrowserCache'); await s.send('Network.setCacheDisable
 ### 2a. extractCard
 ```
 browser_navigate  http://localhost:8765/tests/browser/harness-extract.html
-browser_evaluate  () => window.__YTVV_RESULTS__          # esperar passed:28, failed:0
+browser_evaluate  () => window.__YTVV_RESULTS__          # esperar passed:37, failed:0
 ```
 
 ### 2b. badge / formatRatio / intensityClass
