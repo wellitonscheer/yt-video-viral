@@ -17,17 +17,22 @@ Tudo abaixo usa `http://localhost:8765/...`. Ao terminar, mate o servidor.
 ```
 Bash: node tests/unit/run.mjs
 ```
-Espera-se `=== TOTAL: 80 ok, 0 fail ===` e exit code 0. Cobre parseCount/parseCountStr (pt-BR + en,
-incl. `29.8 million`), extractInscritosFromHtml contra fixtures reais, e extractChannelKey.
+Espera-se `=== TOTAL: 106 ok, 0 fail ===` e exit code 0. Cobre parseCount/parseCountStr (pt-BR + en,
+incl. `29.8 million`), extractInscritosFromHtml contra fixtures reais, extractChannelKey e o cache do SW.
 
 ## 2. Browser — extractCard, badge, e2e
 
 Para cada harness: navegar, ler `window.__YTVV_RESULTS__`, asserir `failed === 0`.
 
+⚠️ O perfil do Playwright é persistente e o `http.server` não manda `Cache-Control`: o navegador pode servir
+harness/scripts **antigos** do cache (sintoma: contagem de casos menor que a esperada). Antes de rodar,
+limpar o cache via `browser_run_code_unsafe`: `const s = await page.context().newCDPSession(page);
+await s.send('Network.clearBrowserCache'); await s.send('Network.setCacheDisabled', { cacheDisabled: true });`
+
 ### 2a. extractCard
 ```
 browser_navigate  http://localhost:8765/tests/browser/harness-extract.html
-browser_evaluate  () => window.__YTVV_RESULTS__          # esperar passed:23, failed:0
+browser_evaluate  () => window.__YTVV_RESULTS__          # esperar passed:37, failed:0
 ```
 
 ### 2b. badge / formatRatio / intensityClass
@@ -39,9 +44,9 @@ browser_evaluate  () => window.__YTVV_RESULTS__          # esperar passed:19, fa
 ### 2c. e2e (content.js + chrome stub) — assíncrono
 ```
 browser_navigate       http://localhost:8765/tests/browser/harness-e2e.html
-browser_wait_for       text: "🔥"                         # content.js responde via microtask + rAF
-browser_evaluate       () => window.__YTVV_RESULTS__       # esperar passed:5, failed:0
-browser_take_screenshot  filename: ytvv-e2e-badge.png      # prova visual: 🔥 12x no card viral, nada no card low
+browser_wait_for       text: "🔥"                         # content.js responde via microtask + scan com throttle
+browser_evaluate       () => window.__YTVV_RESULTS__       # assíncrono (~2 s: reciclagem, scroll, aba de canal); esperar passed:16, failed:0
+browser_take_screenshot  filename: ytvv-e2e-badge.png      # prova visual: 🔥 3,0x no card viral (já reciclado), nada no card low
 ```
 
 ### Sanidade de console (qualquer harness)

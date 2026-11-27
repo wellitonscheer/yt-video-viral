@@ -4,6 +4,34 @@ import { fetchSubscribers } from './channel-fetcher.js';
 const MSG_GET_SUBS = 'YTVV_GET_SUBS';
 const LOG_PREFIX = '[YTVV/bg]';
 
+// Limita quantos requests de rede rodam ao mesmo tempo (fila FIFO). Sem isso, uma página com cache
+// frio dispara 20-40 downloads simultâneos (página do canal: ~64 KB comprimidos / 1-2 MB de HTML cada)
+// no mesmo instante em que o YouTube carrega thumbs e player. Como o content script só pede cards
+// perto da tela, FIFO ≈ prioridade para o que o usuário está vendo.
+function createLimiter(max) {
+  let active = 0;
+  const queue = [];
+  const next = () => {
+    if (active >= max || queue.length === 0) return;
+    active++;
+    const { fn, resolve, reject } = queue.shift();
+    Promise.resolve()
+      .then(fn)
+      .then(resolve, reject)
+      .finally(() => {
+        active--;
+        next();
+      });
+  };
+  return (fn) => new Promise((resolve, reject) => {
+    queue.push({ fn, resolve, reject });
+    next();
+  });
+}
+
+const channelLimit = createLimiter(6);
+const oembedLimit = createLimiter(8);
+
 function channelKeyFromHref(channelHref) {
   if (!channelHref) return null;
   try {
@@ -32,7 +60,7 @@ function videoIdFromHref(videoHref) {
 
 // fetch com timeout via AbortController. Em timeout, lança AbortError — os callers (getChannelHref/
 // getSubs) capturam e devolvem null SEM cachear, evitando pendurar o handler e evitando cache 24h de
-// uma falha transitória.
+// uma falha transitória. O timer começa quando o request sai da fila do limiter, não ao entrar nela.
 async function fetchWithTimeout(url, options, timeoutMs) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -65,7 +93,7 @@ async function getChannelHref({ channelHref, videoHref }) {
 
   return dedupe(cacheKey, async () => {
     try {
-      const resolved = await resolveChannelHrefViaOembed(videoHref);
+      const resolved = await oembedLimit(() => resolveChannelHrefViaOembed(videoHref));
       // Só cacheia em resposta efetiva (mesmo que null): erro transitório fica fora do cache
       await setCached(cacheKey, resolved);
       return resolved;
@@ -86,7 +114,7 @@ async function getSubs({ channelHref, videoHref }) {
 
   return dedupe(key, async () => {
     try {
-      const subs = await fetchSubscribers(resolvedHref);
+      const subs = await channelLimit(() => fetchSubscribers(resolvedHref));
       // Só cacheia em resposta efetiva: erro transitório de rede fica fora do cache
       await setCached(key, subs);
       return subs;

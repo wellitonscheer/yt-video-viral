@@ -1,5 +1,5 @@
 // Stub do objeto `chrome` para rodar content.js fora do contexto de extensão.
-// content.js só usa chrome.runtime.sendMessage; respondemos com um subs canned a partir de
+// content.js só usa chrome.runtime.sendMessage (e chrome.runtime.id p/ detectar contexto órfão); respondemos com um subs canned a partir de
 // window.__YTVV_STUB_SUBS (lookup por substring do channelHref, pois em file:// o href resolve para
 // "file:///@handle"). Inclui um storage.local no-op por robustez.
 (function () {
@@ -13,10 +13,14 @@
     return ('__default' in table) ? table.__default : null;
   }
 
+  window.__YTVV_SENT = []; // mensagens enviadas pelo content.js, em ordem (para os asserts do e2e)
+
   window.chrome = {
     runtime: {
+      id: 'ytvv-stub',
       lastError: null,
       sendMessage: function (msg, cb) {
+        window.__YTVV_SENT.push(msg);
         var subs = lookupSubs(msg && msg.channelHref);
         // responde de forma assíncrona, como a IPC real
         Promise.resolve().then(function () { cb({ ok: true, subs: subs }); });

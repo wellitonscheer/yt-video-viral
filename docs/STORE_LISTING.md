@@ -7,7 +7,7 @@
 ## Informações básicas
 
 - **Nome da extensão:** YT Video Viral
-- **Versão:** 0.1.0 (sincronizar com `manifest.json:version`)
+- **Versão:** 0.1.1 (sincronizar com `manifest.json:version`)
 - **Categoria sugerida:** Produtividade / Ferramentas
 - **Idioma primário:** Português (Brasil)
 - **Idiomas adicionais:** (deixar em branco no v0.1.0; adicionar `English` quando traduzir)
@@ -52,9 +52,12 @@ A cor do badge escala com a magnitude:
 
 • Página inicial do YouTube
 • Resultados de busca
-• Sidebar de vídeos recomendados na página de assistir
+• Vídeos relacionados na página de assistir (inclusive abaixo de uma playlist ou mix)
+• Páginas de canal (Início, Vídeos, Ao vivo)
+• Playlists, inclusive "Assistir mais tarde" e "Vídeos curtidos"
+• Inscrições, Histórico, "Você" e Gaming
 
-(YouTube Shorts, playlists e páginas de canal não recebem badges nesta versão.)
+(YouTube Shorts, lives/estreias e a lista lateral de uma playlist na página de assistir não recebem badges — o YouTube não mostra as visualizações ali.)
 
 ▶ PRIVACIDADE PRIMEIRO
 
@@ -80,6 +83,7 @@ Sem acesso a outras abas, sem leitura de histórico, sem acesso a cookies fora d
 • A extração depende do HTML atual do YouTube em português ou inglês (outros idiomas não são reconhecidos); redesigns podem temporariamente quebrar o parsing até atualização.
 • Canais que ocultam contagem de inscritos não recebem badge.
 • A primeira visita a um canal novo precisa de um fetch da página dele; visitas seguintes usam cache local.
+• Depois de uma atualização da extensão, abas do YouTube que já estavam abertas precisam de F5 para voltar a mostrar badges.
 
 ▶ OPEN SOURCE
 

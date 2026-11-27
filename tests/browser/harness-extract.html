@@ -60,6 +60,47 @@
     <div id="metadata-line"><span class="inline-metadata-item">8</span><span class="inline-metadata-item">há 2 dias</span></div>
   </ytd-video-renderer>
 
+  <!-- COMPACTO < 1000 (aba Vídeos de canal): tela mostra só "548", o aria-label traz a palavra -> 548 -->
+  <ytd-rich-item-renderer id="aria-ptbr">
+    <div><a href="/watch?v=GGG"><img alt="thumb"></a></div>
+    <div class="row"><span aria-label="548 visualizações">548</span><span aria-hidden="true"> • </span><span>há 6 dias</span></div>
+  </ytd-rich-item-renderer>
+
+  <!-- idem em inglês -->
+  <ytd-rich-item-renderer id="aria-en">
+    <div><a href="/watch?v=HHH"><img alt="thumb"></a></div>
+    <div class="row"><span aria-label="548 views">548</span><span aria-hidden="true"> • </span><span>6 days ago</span></div>
+  </ytd-rich-item-renderer>
+
+  <!-- GUARDA: aria-label de título que só CONTÉM a palavra (não é o label inteiro) -> não usar -> null -->
+  <ytd-rich-item-renderer id="aria-title-guard">
+    <div><a href="/watch?v=III" aria-label="Top 10 gols 548 visualizações"><img alt="thumb"></a></div>
+    <div class="row"><span>Top 10 gols</span></div>
+  </ytd-rich-item-renderer>
+
+  <!-- GRID LEGADO (/gaming): ytd-grid-video-renderer com a palavra "visualizações" -> 88 mi -->
+  <ytd-grid-video-renderer id="grid-ptbr">
+    <ytd-thumbnail><a id="thumbnail" href="/watch?v=JJJ"><img alt="thumb"></a></ytd-thumbnail>
+    <div id="details"><a href="/@grid">Canal Grid</a></div>
+    <div id="metadata-line"><span>88 mi de visualizações</span><span>há 1 mês</span></div>
+  </ytd-grid-video-renderer>
+
+  <!-- PLAYLIST LEGADA ("Assistir mais tarde"): ytd-playlist-video-renderer, contagem pura "121K" + data -->
+  <ytd-playlist-video-renderer id="wl-en">
+    <ytd-thumbnail><a id="thumbnail" href="/watch?v=KKK&amp;list=WL&amp;index=1"><img alt="thumb"></a></ytd-thumbnail>
+    <div id="byline-container"><a href="/@wl">Canal WL</a></div>
+    <div id="video-info"><span>121K</span><span>•</span><span>12y ago</span></div>
+  </ytd-playlist-video-renderer>
+
+  <!-- aninhado num wrapper legado: lockup dentro de ytd-grid-video-renderer -> lockup interno dá null -->
+  <ytd-grid-video-renderer id="grid-nested-outer">
+    <yt-lockup-view-model id="grid-nested-inner">
+      <a href="/watch?v=LLL"><img alt="thumb"></a>
+      <div><a href="/@gridnest">Grid Nest</a></div>
+      <div><span>1,5 mi de visualizações</span></div>
+    </yt-lockup-view-model>
+  </ytd-grid-video-renderer>
+
   <script src="assert-browser.js"></script>
   <script src="../../src/shared/constants.js"></script>
   <script src="../../src/shared/selectors.js"></script>
@@ -119,6 +160,38 @@
 
       // guarda: inteiro solto "8" ao lado de data -> rejeitado (null), sem badge falso
       T.eq(YTVV.extractCard(document.getElementById('lone-int-noword')), null, 'inteiro solto "8" -> null (guarda anti falso-positivo)');
+
+      // aria-label: contagem < 1000 sem sufixo, pt-BR e en
+      var ariaPt = YTVV.extractCard(document.getElementById('aria-ptbr'));
+      T.ok(!!ariaPt, 'aria-label pt-BR: extractCard != null');
+      if (ariaPt) T.eq(YTVV.parseCount(ariaPt.viewsText), 548, 'aria-label pt-BR: parseCount=548');
+      var ariaEn = YTVV.extractCard(document.getElementById('aria-en'));
+      T.ok(!!ariaEn, 'aria-label en: extractCard != null');
+      if (ariaEn) T.eq(YTVV.parseCount(ariaEn.viewsText), 548, 'aria-label en: parseCount=548');
+
+      // guarda: aria-label de título contendo a palavra não vira contagem
+      T.eq(YTVV.extractCard(document.getElementById('aria-title-guard')), null, 'aria-label de título -> null (label precisa ser só a contagem)');
+
+      // grid legado (/gaming)
+      var grid = YTVV.extractCard(document.getElementById('grid-ptbr'));
+      T.ok(!!grid, 'grid pt-BR: extractCard != null');
+      if (grid) {
+        T.eq(grid.context, 'grid', 'grid: context=grid');
+        T.eq(YTVV.parseCount(grid.viewsText), 88000000, 'grid: parseCount=88M');
+        T.contains(grid.channelHref, '@grid', 'grid: channelHref @grid');
+      }
+
+      // playlist legada ("Assistir mais tarde"): contagem pura + data relativa
+      var wl = YTVV.extractCard(document.getElementById('wl-en'));
+      T.ok(!!wl, 'playlist WL en: extractCard != null');
+      if (wl) {
+        T.eq(wl.context, 'playlist', 'playlist: context=playlist');
+        T.eq(YTVV.parseCount(wl.viewsText), 121000, 'playlist: parseCount=121K');
+        T.contains(wl.channelHref, '@wl', 'playlist: channelHref @wl');
+      }
+
+      // lockup aninhado em wrapper legado -> null (o wrapper processa, sem badge duplicado)
+      T.eq(YTVV.matchContext(document.getElementById('grid-nested-inner')), null, 'nested grid: lockup interno -> matchContext null');
 
       T.finalize();
     })();
