@@ -62,7 +62,7 @@ A cor do badge escala com a magnitude:
 • Todo o tráfego de rede é direto para o próprio YouTube (oEmbed e página pública do canal), partindo do seu navegador.
 • Cache de inscritos por canal fica somente no seu dispositivo (chrome.storage.local) e expira em 24 horas.
 
-Política completa: (URL do PRIVACY.md no GitHub)
+Política completa: https://github.com/wellitonscheer/yt-video-viral/blob/main/docs/PRIVACY.md
 
 ▶ COMO FUNCIONA POR DENTRO
 
@@ -138,7 +138,7 @@ https://github.com/wellitonscheer/yt-video-viral/blob/main/docs/PRIVACY.md
 | Screenshot 1 | 1280×800 ou 640×400 PNG/JPG | ✓ `docs/screenshot-busca.png` — busca "gatinho fofo" (badges 2,0x / 5,8x / 209x) |
 | Screenshot 2 (opcional) | 1280×800 ou 640×400 | ✓ `docs/screenshot-busca-2.png` — busca "como fazer slime" (badges 1,7x / 204x / 22x) |
 | Screenshot 3 (opcional) | 1280×800 ou 640×400 | ⬜ A produzir — sidebar de watch com badges |
-| Tile promo pequeno (opcional) | 440×280 PNG | ⬜ A produzir, se quiser ranking melhor |
+| Tile promo pequeno | 440×280 PNG | ✓ `docs/promo-small-440x280.png` — ícone + nome + badges nas 3 cores |
 | Marquee promo (opcional) | 1400×560 PNG | ⬜ A produzir |
 | Vídeo promo (opcional) | YouTube unlisted | ⬜ A produzir |
 
