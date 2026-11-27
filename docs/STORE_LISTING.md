@@ -84,10 +84,10 @@ Sem acesso a outras abas, sem leitura de histórico, sem acesso a cookies fora d
 ▶ OPEN SOURCE
 
 Código-fonte aberto sob licença MIT:
-https://github.com/SEU-USUARIO/yt-video-viral
+https://github.com/wellitonscheer/yt-video-viral
 
 Reporte bugs e sugira features em:
-https://github.com/SEU-USUARIO/yt-video-viral/issues
+https://github.com/wellitonscheer/yt-video-viral/issues
 ```
 
 ---
@@ -123,10 +123,10 @@ A extensão não executa código baixado remotamente. Todo o JavaScript é está
 ## URL da política de privacidade
 
 ```
-https://github.com/SEU-USUARIO/yt-video-viral/blob/main/docs/PRIVACY.md
+https://github.com/wellitonscheer/yt-video-viral/blob/main/docs/PRIVACY.md
 ```
 
-*Substituir `SEU-USUARIO` após criar o repositório. Alternativamente, ativar GitHub Pages no repo e usar `https://SEU-USUARIO.github.io/yt-video-viral/PRIVACY` — qualquer URL pública estável serve.*
+*Alternativamente, ativar GitHub Pages no repo e usar `https://wellitonscheer.github.io/yt-video-viral/PRIVACY` — qualquer URL pública estável serve.*
 
 ---
 

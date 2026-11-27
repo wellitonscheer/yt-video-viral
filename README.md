@@ -31,7 +31,7 @@ O número exibido é o múltiplo arredondado (ex.: `🔥 3,2x`).
 ### Opção 3 — Sideload via clone
 
 ```bash
-git clone https://github.com/SEU-USUARIO/yt-video-viral.git
+git clone https://github.com/wellitonscheer/yt-video-viral.git
 ```
 
 Depois, `chrome://extensions/` → **Modo desenvolvedor** → **Carregar sem compactação** → apontar para a pasta `yt-video-viral/`.

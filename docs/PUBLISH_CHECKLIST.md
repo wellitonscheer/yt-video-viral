@@ -44,9 +44,9 @@ gh repo view --web
 
 Atualizar os placeholders `SEU-USUARIO` nos seguintes arquivos:
 
-- [ ] `README.md` — links de Releases e Issues
-- [ ] `docs/PRIVACY.md` — URL do GitHub Issues
-- [ ] `docs/STORE_LISTING.md` — URL do GitHub e do PRIVACY.md
+- [x] `README.md` — URL do `git clone`
+- [x] `docs/PRIVACY.md` — URL do GitHub Issues
+- [x] `docs/STORE_LISTING.md` — URL do GitHub e do PRIVACY.md
 
 ```bash
 git add README.md docs/
@@ -87,7 +87,7 @@ A Chrome Web Store exige uma URL pública. Duas opções:
 URL final será:
 
 ```
-https://github.com/SEU-USUARIO/yt-video-viral/blob/main/docs/PRIVACY.md
+https://github.com/wellitonscheer/yt-video-viral/blob/main/docs/PRIVACY.md
 ```
 
 Funciona, é estável, **basta o repo ser público**.
@@ -101,7 +101,7 @@ Funciona, é estável, **basta o repo ser público**.
 URL final:
 
 ```
-https://SEU-USUARIO.github.io/yt-video-viral/PRIVACY
+https://wellitonscheer.github.io/yt-video-viral/PRIVACY
 ```
 
 ---

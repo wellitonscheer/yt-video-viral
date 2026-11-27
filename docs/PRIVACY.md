@@ -59,5 +59,4 @@ Atualizações nesta política serão publicadas no mesmo arquivo dentro do repo
 
 Dúvidas, reportes de bug ou pedidos relacionados a privacidade:
 
-- Issues no GitHub: https://github.com/SEU-USUARIO/yt-video-viral/issues *(substituir após criar o repositório)*
-- E-mail: `seu-email@dominio.com` *(opcional — substituir ou remover)*
+- Issues no GitHub: https://github.com/wellitonscheer/yt-video-viral/issues
