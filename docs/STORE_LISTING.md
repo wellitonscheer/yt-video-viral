@@ -135,9 +135,9 @@ https://github.com/wellitonscheer/yt-video-viral/blob/main/docs/PRIVACY.md
 | Asset | Tamanho | Status |
 |---|---|---|
 | Ícone da loja | 128×128 PNG | ✓ Existe em `icons/128.png` |
-| Screenshot 1 | 1280×800 ou 640×400 PNG/JPG | ✓ `docs/screenshot-busca.png` — busca "gatinho fofo" (badges 2,0x / 5,8x / 209x) |
-| Screenshot 2 (opcional) | 1280×800 ou 640×400 | ✓ `docs/screenshot-busca-2.png` — busca "como fazer slime" (badges 1,7x / 204x / 22x) |
-| Screenshot 3 (opcional) | 1280×800 ou 640×400 | ⬜ A produzir — sidebar de watch com badges |
+| Screenshot 1 | 1280×800 ou 640×400 PNG/JPG | ✓ `docs/screenshot-busca.png` — busca "gols incríveis" (badges 1,6x / 125x) |
+| Screenshot 2 (opcional) | 1280×800 ou 640×400 | ✓ `docs/screenshot-busca-2.png` — busca "defesas incríveis goleiro" (badges 14x / 2,4x) |
+| Screenshot 3 (opcional) | 1280×800 ou 640×400 | ✓ `docs/screenshot-busca-3.png` — busca "jogadas incríveis basquete" (badges 22x / 15x) |
 | Tile promo pequeno | 440×280 PNG | ✓ `docs/promo-small-440x280.png` — ícone + nome + badges nas 3 cores |
 | Marquee promo (opcional) | 1400×560 PNG | ⬜ A produzir |
 | Vídeo promo (opcional) | YouTube unlisted | ⬜ A produzir |
