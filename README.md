@@ -51,21 +51,21 @@ A extensão observa o DOM do YouTube via `MutationObserver`, extrai de cada card
 
 - **Nenhum dado é coletado.** A extensão não envia nada para servidores próprios — não há "próprios".
 - O único tráfego de rede é para `https://www.youtube.com/` (endpoint oEmbed do próprio YouTube e a página HTML pública do canal), feito a partir do seu navegador como se você estivesse navegando manualmente.
-- O cache de inscritos por canal fica em `chrome.storage.local` do seu próprio browser, com expiração de 24 h, e é apagado ao desinstalar a extensão.
+- O cache de inscritos por canal fica em `chrome.storage.local` do seu próprio browser, com expiração de 24 h (1 h quando o canal não tem contagem disponível), e é apagado ao desinstalar a extensão.
 - Sem analytics, sem terceiros, sem rastreamento.
 
 Política completa: [`docs/PRIVACY.md`](docs/PRIVACY.md).
 
 ## Limitações conhecidas
 
-- Parsing depende do HTML atual do YouTube em **pt-BR**. Redesigns futuros podem quebrar a extração de inscritos até atualização.
+- Parsing depende do HTML atual do YouTube em **pt-BR ou inglês** (outros idiomas não são reconhecidos). Redesigns futuros podem quebrar a extração de inscritos até atualização.
 - Canais que ocultam contagem de inscritos retornam sem dado — sem badge.
 - A primeira visita a um canal novo precisa de um `fetch` da página dele (alguns segundos); visitas subsequentes usam cache.
 - Não funciona em YouTube Shorts.
 
 ## Contribuir
 
-Issues e PRs são bem-vindos. Se você usa **Claude Code** ou outro assistente de IA para contribuir, leia primeiro [`CLAUDE.md`](CLAUDE.md) — descreve a arquitetura, armadilhas conhecidas (service worker MV3, parsers duplicados, idioma pt-BR) e como rodar localmente.
+Issues e PRs são bem-vindos. Se você usa **Claude Code** ou outro assistente de IA para contribuir, leia primeiro [`CLAUDE.md`](CLAUDE.md) — descreve a arquitetura, armadilhas conhecidas (service worker MV3, parsers duplicados, suporte bilíngue pt-BR + en) e como rodar localmente.
 
 Para reportar um bug ou pedir feature, abra uma [issue](../../issues).
 

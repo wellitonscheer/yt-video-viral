@@ -77,7 +77,7 @@ Sem acesso a outras abas, sem leitura de histórico, sem acesso a cookies fora d
 
 ▶ LIMITAÇÕES CONHECIDAS
 
-• A extração depende do HTML atual do YouTube em português; redesigns podem temporariamente quebrar o parsing até atualização.
+• A extração depende do HTML atual do YouTube em português ou inglês (outros idiomas não são reconhecidos); redesigns podem temporariamente quebrar o parsing até atualização.
 • Canais que ocultam contagem de inscritos não recebem badge.
 • A primeira visita a um canal novo precisa de um fetch da página dele; visitas seguintes usam cache local.
 

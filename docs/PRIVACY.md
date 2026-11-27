@@ -1,6 +1,6 @@
 # Política de Privacidade — YT Video Viral
 
-_Última atualização: 19 de maio de 2026_
+_Última atualização: 27 de novembro de 2026_
 
 Este documento descreve como a extensão **YT Video Viral** lida com dados. Em resumo: **nada é coletado, nada é enviado a servidores próprios**.
 
@@ -15,7 +15,7 @@ Durante o uso normal, a extensão realiza requisições **apenas** para o domín
 - **Endpoint oEmbed do YouTube** (`https://www.youtube.com/oembed?url=...`): usado para resolver o canal de um vídeo quando o YouTube não expõe esse link no DOM da sidebar de watch.
 - **Página HTML pública do canal** (`https://www.youtube.com/@handle` ou equivalente): usada para extrair o número de inscritos quando o YouTube não disponibiliza esse dado no card do vídeo.
 
-Essas requisições partem do seu próprio navegador, com seus próprios cookies de sessão do YouTube, exatamente como aconteceria se você navegasse manualmente até aquelas URLs.
+Essas requisições partem do seu próprio navegador, direto para o YouTube. A requisição da página do canal é feita **sem enviar cookies** (`credentials: 'omit'`), ou seja, sem vínculo com a sua sessão do YouTube.
 
 A extensão **não** se comunica com nenhum outro domínio — nem servidores do autor, nem provedores de analytics, nem terceiros.
 
@@ -31,7 +31,7 @@ A extensão usa a API `chrome.storage.local` do navegador para armazenar **apena
 }
 ```
 
-Cada entrada expira após **24 horas**. O cache reduz o número de requisições à página do canal e acelera a renderização dos badges em visitas subsequentes.
+Cada entrada expira após **24 horas** (ou após **1 hora**, quando o canal não tem contagem de inscritos disponível). O cache reduz o número de requisições à página do canal e acelera a renderização dos badges em visitas subsequentes.
 
 Todo esse cache fica **somente no seu navegador, no seu dispositivo**, e é apagado:
 
