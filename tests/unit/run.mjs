@@ -5,11 +5,13 @@ import { createSuite } from './assert.mjs';
 import parsers from './parsers.test.mjs';
 import extractInscritos from './extract-inscritos.test.mjs';
 import channelKey from './channel-key.test.mjs';
+import cache from './cache.test.mjs';
 
 const suites = [
   ['parsers (parseCount / parseCountStr)', parsers],
   ['extractInscritosFromHtml (fixtures reais)', extractInscritos],
   ['extractChannelKey', channelKey],
+  ['cache (memória + TTL + flush podado)', cache],
 ];
 
 let totalPass = 0;

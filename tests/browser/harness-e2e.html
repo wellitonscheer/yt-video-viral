@@ -6,15 +6,17 @@
   <link rel="stylesheet" href="../../src/content/badge.css">
 </head>
 <body>
-  <!-- Cards reais o suficiente p/ content.js: o MutationObserver/scan inicial encontra a tag-raiz,
-       extractCard puxa channelHref+views, sendMessage (stub) devolve subs canned, applyBadge dispara. -->
+  <!-- Cards reais o suficiente p/ content.js: o scan encontra a tag-raiz, o IntersectionObserver libera
+       os que estão perto da tela, extractCard puxa channelHref+views, sendMessage (stub) devolve subs
+       canned, applyBadge dispara. -->
 
-  <!-- VIRAL: 1,2 mi views / 100k subs = ratio 12 -> badge --high "🔥 12x" -->
+  <!-- VIRAL: 1,2 mi views / 100k subs = ratio 12 -> badge --high "🔥 12x".
+       Depois o teste RECICLA este card (outro vídeo, 300 mil views) -> "🔥 3,0x". -->
   <div id="card-viral">
     <ytd-rich-item-renderer>
-      <div><a href="/watch?v=VIRAL1"><img alt="thumb"></a></div>
+      <div><a id="viral-video" href="/watch?v=VIRAL1"><img alt="thumb"></a></div>
       <div><a href="/@viral">Canal Viral</a></div>
-      <div><span>1,2 mi de visualizações</span></div>
+      <div><span id="viral-views">1,2 mi de visualizações</span></div>
     </ytd-rich-item-renderer>
   </div>
 
@@ -27,11 +29,30 @@
     </ytd-video-renderer>
   </div>
 
+  <!-- PÁGINA DE CANAL OCULTA (como uma página antiga do SPA): card sem âncora de canal. Enquanto
+       oculta, não pode gerar request. Ao exibir com a URL /@canalx/videos, o canal vem da página:
+       5 mil views / 1000 subs = 5x. -->
+  <ytd-browse id="channel-page" page-subtype="channels" hidden>
+    <ytd-rich-item-renderer id="card-channel">
+      <div><a href="/watch?v=CH1"><img alt="thumb"></a></div>
+      <div><span>5 mil visualizações</span></div>
+    </ytd-rich-item-renderer>
+  </ytd-browse>
+
+  <!-- LONGE DA TELA: só pode gerar request depois de rolar até ele. 50 mil / 10 mil = 5x. -->
+  <div id="card-far" style="margin-top: 6000px">
+    <ytd-rich-item-renderer>
+      <div><a href="/watch?v=FAR1"><img alt="thumb"></a></div>
+      <div><a href="/@far">Canal Longe</a></div>
+      <div><span>50 mil visualizações</span></div>
+    </ytd-rich-item-renderer>
+  </div>
+
   <script src="chrome-stub.js"></script>
   <script src="assert-browser.js"></script>
   <script>
     // Configura o stub ANTES de content.js rodar (content.js dispara o scan ao carregar).
-    window.__YTVV_STUB_SUBS = { '@viral': 100000, 'UCbig': 5000000 };
+    window.__YTVV_STUB_SUBS = { '@viral': 100000, 'UCbig': 5000000, '@far': 10000, '@canalx': 1000 };
   </script>
 
   <!-- content scripts na ordem do manifest -->
@@ -43,26 +64,73 @@
   <script src="../../src/content/content.js"></script>
 
   <script>
-    (function () {
+    (async function () {
       var T = window.YTVVTest;
-      // content.js responde via microtask + requestAnimationFrame; faz poll até ~3s pelo badge.
-      var tries = 0;
-      (function wait() {
-        tries++;
-        var viralBadge = document.querySelector('#card-viral .ytvv-badge');
-        if (viralBadge || tries > 60) {
-          T.ok(!!viralBadge, 'card viral (ratio 12) recebe badge');
-          if (viralBadge) {
-            T.contains(viralBadge.textContent, '🔥', 'badge tem 🔥');
-            T.contains(viralBadge.textContent, '12x', 'badge mostra 12x');
-            T.ok(viralBadge.className.indexOf('ytvv-badge--high') !== -1, 'badge é --high');
-          }
-          T.ok(!document.querySelector('#card-low .ytvv-badge'), 'card low (ratio 0.02) NÃO recebe badge');
-          T.finalize();
-          return;
-        }
-        setTimeout(wait, 50);
-      })();
+      var originalUrl = location.pathname + location.search;
+
+      function waitFor(cond, ms) {
+        return new Promise(function (resolve) {
+          var start = Date.now();
+          (function tick() {
+            var v = cond();
+            if (v || Date.now() - start > ms) return resolve(v);
+            setTimeout(tick, 50);
+          })();
+        });
+      }
+      function sentFor(videoId) {
+        return window.__YTVV_SENT.filter(function (m) { return (m.videoHref || '').indexOf('v=' + videoId) !== -1; });
+      }
+
+      // 1) card viral recebe badge; card low não
+      var viralBadge = await waitFor(function () { return document.querySelector('#card-viral .ytvv-badge'); }, 3000);
+      T.ok(!!viralBadge, 'card viral (ratio 12) recebe badge');
+      if (viralBadge) {
+        T.contains(viralBadge.textContent, '🔥', 'badge tem 🔥');
+        T.contains(viralBadge.textContent, '12x', 'badge mostra 12x');
+        T.ok(viralBadge.className.indexOf('ytvv-badge--high') !== -1, 'badge é --high');
+      }
+      T.ok(!document.querySelector('#card-low .ytvv-badge'), 'card low (ratio 0.02) NÃO recebe badge');
+
+      // 2) viewport primeiro + páginas ocultas: nada de request para o card longe nem para o oculto
+      await new Promise(function (r) { setTimeout(r, 400); });
+      T.eq(sentFor('FAR1').length, 0, 'card longe da tela NÃO gera request antes de rolar');
+      T.eq(sentFor('CH1').length, 0, 'card em página oculta NÃO gera request');
+
+      // 3) reciclagem: o YouTube reaproveita o elemento para outro vídeo
+      document.getElementById('viral-video').setAttribute('href', '/watch?v=VIRAL2');
+      document.getElementById('viral-views').textContent = '300 mil de visualizações';
+      var recycled = await waitFor(function () {
+        var b = document.querySelector('#card-viral .ytvv-badge');
+        return b && b.textContent.indexOf('3,0x') !== -1 ? b : null;
+      }, 3000);
+      T.ok(!!recycled, 'card reciclado: badge refeito para o vídeo novo (🔥 3,0x)');
+      T.eq(document.querySelectorAll('#card-viral .ytvv-badge').length, 1, 'card reciclado: badge antigo removido (1 badge só)');
+      if (recycled) T.ok(recycled.className.indexOf('ytvv-badge--mid') !== -1, 'card reciclado: badge é --mid');
+      T.eq(document.querySelector('#card-viral ytd-rich-item-renderer').getAttribute('data-ytvv-processed'), 'VIRAL2',
+        'card reciclado: atributo guarda o ID do vídeo novo');
+
+      // 4) rolar até o card longe: agora gera request e recebe badge
+      document.getElementById('card-far').scrollIntoView();
+      var farBadge = await waitFor(function () { return document.querySelector('#card-far .ytvv-badge'); }, 3000);
+      T.ok(!!farBadge, 'card longe recebe badge depois de rolar até ele');
+      T.eq(sentFor('FAR1').length, 1, 'card longe: exatamente 1 request');
+
+      // 5) página de canal (aba Vídeos): card sem âncora usa o canal da URL em vez de oEmbed
+      window.scrollTo(0, 0);
+      history.replaceState(null, '', '/@canalx/videos');
+      document.getElementById('channel-page').removeAttribute('hidden');
+      var chBadge = await waitFor(function () { return document.querySelector('#card-channel .ytvv-badge'); }, 3000);
+      var chMsg = sentFor('CH1')[0];
+      T.eq(chMsg && chMsg.channelHref, '/@canalx', 'aba Vídeos do canal: channelHref vem da página (sem oEmbed)');
+      T.ok(!!chBadge && chBadge.textContent.indexOf('5,0x') !== -1, 'aba Vídeos do canal: badge 🔥 5,0x');
+      history.replaceState(null, '', originalUrl);
+
+      // 6) nenhum vídeo pedido duas vezes
+      var ids = window.__YTVV_SENT.map(function (m) { return m.videoHref; });
+      T.eq(ids.length, new Set(ids).size, 'nenhum request duplicado para o mesmo vídeo');
+
+      T.finalize();
     })();
   </script>
 </body>

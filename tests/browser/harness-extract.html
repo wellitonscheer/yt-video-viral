@@ -60,6 +60,24 @@
     <div id="metadata-line"><span class="inline-metadata-item">8</span><span class="inline-metadata-item">há 2 dias</span></div>
   </ytd-video-renderer>
 
+  <!-- COMPACTO < 1000 (aba Vídeos de canal): tela mostra só "548", o aria-label traz a palavra -> 548 -->
+  <ytd-rich-item-renderer id="aria-ptbr">
+    <div><a href="/watch?v=GGG"><img alt="thumb"></a></div>
+    <div class="row"><span aria-label="548 visualizações">548</span><span aria-hidden="true"> • </span><span>há 6 dias</span></div>
+  </ytd-rich-item-renderer>
+
+  <!-- idem em inglês -->
+  <ytd-rich-item-renderer id="aria-en">
+    <div><a href="/watch?v=HHH"><img alt="thumb"></a></div>
+    <div class="row"><span aria-label="548 views">548</span><span aria-hidden="true"> • </span><span>6 days ago</span></div>
+  </ytd-rich-item-renderer>
+
+  <!-- GUARDA: aria-label de título que só CONTÉM a palavra (não é o label inteiro) -> não usar -> null -->
+  <ytd-rich-item-renderer id="aria-title-guard">
+    <div><a href="/watch?v=III" aria-label="Top 10 gols 548 visualizações"><img alt="thumb"></a></div>
+    <div class="row"><span>Top 10 gols</span></div>
+  </ytd-rich-item-renderer>
+
   <script src="assert-browser.js"></script>
   <script src="../../src/shared/constants.js"></script>
   <script src="../../src/shared/selectors.js"></script>
@@ -119,6 +137,17 @@
 
       // guarda: inteiro solto "8" ao lado de data -> rejeitado (null), sem badge falso
       T.eq(YTVV.extractCard(document.getElementById('lone-int-noword')), null, 'inteiro solto "8" -> null (guarda anti falso-positivo)');
+
+      // aria-label: contagem < 1000 sem sufixo, pt-BR e en
+      var ariaPt = YTVV.extractCard(document.getElementById('aria-ptbr'));
+      T.ok(!!ariaPt, 'aria-label pt-BR: extractCard != null');
+      if (ariaPt) T.eq(YTVV.parseCount(ariaPt.viewsText), 548, 'aria-label pt-BR: parseCount=548');
+      var ariaEn = YTVV.extractCard(document.getElementById('aria-en'));
+      T.ok(!!ariaEn, 'aria-label en: extractCard != null');
+      if (ariaEn) T.eq(YTVV.parseCount(ariaEn.viewsText), 548, 'aria-label en: parseCount=548');
+
+      // guarda: aria-label de título contendo a palavra não vira contagem
+      T.eq(YTVV.extractCard(document.getElementById('aria-title-guard')), null, 'aria-label de título -> null (label precisa ser só a contagem)');
 
       T.finalize();
     })();

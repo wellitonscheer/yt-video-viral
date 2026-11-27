@@ -7,8 +7,8 @@ Provam que a extensão funciona em **pt-BR e inglês**, sem `package.json`, sem 
 
 | Camada | O que prova | Como rodar |
 |---|---|---|
-| **Unit (Node)** | Parsing de views/inscritos pt-BR + en (incl. `29.8 million`), extração contra HTML real de canal, normalização de href de canal | `node tests/unit/run.mjs` |
-| **Browser** | `extractCard` nos 3 contextos (home/sidebar/search) + aninhado; `applyBadge`/`formatRatio`/`intensityClass`; pipeline e2e do `content.js` com IPC stubbada renderizando o badge | Playwright MCP → `tests/playwright/RUNBOOK.md` |
+| **Unit (Node)** | Parsing de views/inscritos pt-BR + en (incl. `29.8 million`), extração contra HTML real de canal, normalização de href de canal, cache do SW (memória, TTL, poda/teto no flush, falha de escrita não envenena) | `node tests/unit/run.mjs` |
+| **Browser** | `extractCard` nos 3 contextos (home/sidebar/search) + aninhado + `aria-label` (contagem < 1000); `applyBadge`/`formatRatio`/`intensityClass`; pipeline e2e do `content.js` com IPC stubbada: badge, card reciclado, viewport primeiro, página oculta, atalho da aba Vídeos do canal | Playwright MCP → `tests/playwright/RUNBOOK.md` |
 | **Smoke ao vivo** | Os seletores ainda casam com o YouTube atual (hl=en e hl=pt-BR) | Playwright MCP (informativo, allow-failure) |
 | **E2E manual** | Handshake real SW↔content + `fetch` real do canal, extensão instalada | `chrome://extensions` (vide RUNBOOK §4) |
 

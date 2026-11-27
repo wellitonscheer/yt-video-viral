@@ -39,6 +39,11 @@ YTVV.matchContext = function (cardEl) {
 // Aceita plural e singular em ambos idiomas: "1.2M views" / "1 view" / "523 mil visualizações" / "1 visualização".
 YTVV._VIEWS_PATTERN = /\b\d[\d.,]*\s*(?:thousand|million|billion|trillion|mil|mi|bi|milhões|milhão|K|M|B)?\s*(?:de\s+)?(?:views?|visualizaç(?:ões|ão))\b/i;
 
+// Layout compacto (ex.: aba Vídeos de um canal) mostra só "548" na tela, mas o <span> carrega
+// aria-label="548 visualizações" / "548 views". Ancorado no label INTEIRO (^...$) para não pegar
+// aria-labels de título/thumbnail que apenas contêm a palavra (ex.: "Top 10 gols 548 visualizações").
+YTVV._VIEWS_LABEL_PATTERN = /^\s*\d[\d.,]*\s*(?:thousand|million|billion|trillion|milhões|milhão|mil|mi|bi|K|M|B)?\s*(?:de\s+)?(?:views?|visualizaç(?:ões|ão))\s*$/i;
+
 // Layout compacto do YouTube atual omite a palavra "views/visualizações" e mostra só a contagem
 // ("70 mi • há 10 dias"). Para o fallback (vide extractCard), reconhecemos uma contagem PURA (texto
 // inteiro = número+sufixo, com sufixo ou separador, p/ rejeitar inteiros soltos) e uma DATA relativa
@@ -80,6 +85,18 @@ YTVV.extractCard = function (cardEl) {
     if (YTVV._VIEWS_PATTERN.test(t)) {
       viewsText = t;
       break;
+    }
+  }
+  // aria-label (aditivo — só roda se o texto visível não trouxe a palavra): cobre contagens < 1000 do
+  // layout compacto, que aparecem como inteiro puro ("548") e o fallback abaixo rejeita de propósito.
+  if (!viewsText) {
+    var labeled = cardEl.querySelectorAll('[aria-label]');
+    for (var li = 0; li < labeled.length; li++) {
+      var label = labeled[li].getAttribute('aria-label');
+      if (label && label.length <= 40 && YTVV._VIEWS_LABEL_PATTERN.test(label)) {
+        viewsText = label.trim();
+        break;
+      }
     }
   }
   // Fallback (aditivo — só roda se o caminho ancorado na palavra falhou): YouTube atual às vezes

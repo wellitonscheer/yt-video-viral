@@ -7,7 +7,7 @@
 ## Informações básicas
 
 - **Nome da extensão:** YT Video Viral
-- **Versão:** 0.1.0 (sincronizar com `manifest.json:version`)
+- **Versão:** 0.1.1 (sincronizar com `manifest.json:version`)
 - **Categoria sugerida:** Produtividade / Ferramentas
 - **Idioma primário:** Português (Brasil)
 - **Idiomas adicionais:** (deixar em branco no v0.1.0; adicionar `English` quando traduzir)

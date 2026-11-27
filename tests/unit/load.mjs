@@ -45,3 +45,18 @@ export function loadContentGlobals() {
   }
   return YTVV;
 }
+
+// cache.js é ES module e usa o global `chrome` + setTimeout: tira os `export` e injeta stubs como
+// parâmetros (sombreiam os globais). Cada chamada devolve uma instância NOVA do módulo (memória vazia),
+// simulando uma nova ativação do service worker.
+export function loadCache(chromeStub, setTimeoutStub) {
+  let src = readFileSync(join(ROOT, 'src/background/cache.js'), 'utf8');
+  src = src.replace(/^export\s+(async\s+)?function/gm, '$1function');
+  const factory = new Function('chrome', 'setTimeout',
+    src + '\nreturn { getCached, setCached, dedupe, clearCache, flush, MAX_ENTRIES, CACHE_TTL_MS, NULL_TTL_MS, STORAGE_KEY };');
+  const mod = factory(chromeStub, setTimeoutStub || (() => 0));
+  if (typeof mod.getCached !== 'function' || typeof mod.flush !== 'function') {
+    throw new Error('load.mjs: strip de export falhou — getCached/flush ausentes em cache.js');
+  }
+  return mod;
+}
