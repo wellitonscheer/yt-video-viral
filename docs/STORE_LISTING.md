@@ -135,8 +135,8 @@ https://github.com/wellitonscheer/yt-video-viral/blob/main/docs/PRIVACY.md
 | Asset | Tamanho | Status |
 |---|---|---|
 | Ícone da loja | 128×128 PNG | ✓ Existe em `icons/128.png` |
-| Screenshot 1 | 1280×800 ou 640×400 PNG/JPG | ⬜ A produzir — homepage do YouTube com badges |
-| Screenshot 2 (opcional) | 1280×800 ou 640×400 | ⬜ A produzir — página de busca com badges |
+| Screenshot 1 | 1280×800 ou 640×400 PNG/JPG | ✓ `docs/screenshot-busca.png` — busca "gatinho fofo" (badges 2,0x / 5,8x / 209x) |
+| Screenshot 2 (opcional) | 1280×800 ou 640×400 | ✓ `docs/screenshot-busca-2.png` — busca "como fazer slime" (badges 1,7x / 204x / 22x) |
 | Screenshot 3 (opcional) | 1280×800 ou 640×400 | ⬜ A produzir — sidebar de watch com badges |
 | Tile promo pequeno (opcional) | 440×280 PNG | ⬜ A produzir, se quiser ranking melhor |
 | Marquee promo (opcional) | 1400×560 PNG | ⬜ A produzir |

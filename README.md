@@ -2,7 +2,7 @@
 
 > Extensão de navegador que destaca vídeos do YouTube cujas **visualizações ultrapassam o número de inscritos do canal** — um sinal simples de que o vídeo "bombou" além da base habitual.
 
-![placeholder do screenshot — adicionar docs/screenshot.png após instalar e tirar a print](docs/screenshot.png)
+![Badges 🔥 sobre as thumbs na busca do YouTube](docs/screenshot-busca.png)
 
 ## O que faz
 
