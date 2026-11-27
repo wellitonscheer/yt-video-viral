@@ -80,7 +80,7 @@ git push
 
 ## Parte 4 — Política de privacidade publicamente acessível
 
-A Chrome Web Store exige uma URL pública. Duas opções:
+A Chrome Web Store exige uma URL pública. **Em uso: Opção B** (`https://wellitonscheer.github.io/yt-video-viral/PRIVACY`). A Opção A foi recusada pela loja em 27/11/2026 ("Privacy policy link is not reachable": o `/blob/` devolvia 503 para acesso anônimo).
 
 ### Opção A — usar o blob do GitHub direto (mais simples)
 

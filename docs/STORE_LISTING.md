@@ -62,7 +62,7 @@ A cor do badge escala com a magnitude:
 • Todo o tráfego de rede é direto para o próprio YouTube (oEmbed e página pública do canal), partindo do seu navegador.
 • Cache de inscritos por canal fica somente no seu dispositivo (chrome.storage.local) e expira em 24 horas.
 
-Política completa: https://github.com/wellitonscheer/yt-video-viral/blob/main/docs/PRIVACY.md
+Política completa: https://wellitonscheer.github.io/yt-video-viral/PRIVACY
 
 ▶ COMO FUNCIONA POR DENTRO
 
@@ -123,10 +123,10 @@ A extensão não executa código baixado remotamente. Todo o JavaScript é está
 ## URL da política de privacidade
 
 ```
-https://github.com/wellitonscheer/yt-video-viral/blob/main/docs/PRIVACY.md
+https://wellitonscheer.github.io/yt-video-viral/PRIVACY
 ```
 
-*Alternativamente, ativar GitHub Pages no repo e usar `https://wellitonscheer.github.io/yt-video-viral/PRIVACY` — qualquer URL pública estável serve.*
+*Servida pelo GitHub Pages (`main` / `docs`). Não usar o link `github.com/.../blob/...`: em 27/11/2026 ele devolvia 503 para acesso anônimo e a loja recusou com "Privacy policy link is not reachable".*
 
 ---
 
